@@ -16,3 +16,7 @@ src/*.egg-info
 .tox
 gentoo/diamond-*.ebuild
 .vagrant
+
+*.swp
+
+*.un~

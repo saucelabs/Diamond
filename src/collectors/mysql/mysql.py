@@ -407,7 +407,10 @@ class MySQLCollector(diamond.collector.Collector):
 
         return metrics
 
-    def _publish_stats(self, nickname, metrics):
+    def _publish_stats(self, nickname, metrics, precision=None):
+
+        if precision is None:
+          precision = self.config['precision'] or 4
 
         for key in metrics:
             for metric_name in metrics[key]:
@@ -422,9 +425,9 @@ class MySQLCollector(diamond.collector.Collector):
                 if key == 'status':
                     if ('publish' not in self.config
                             or metric_name in self.config['publish']):
-                        self.publish(nickname + metric_name, metric_value)
+                        self.publish(nickname + metric_name, metric_value, precision=precision)
                 else:
-                    self.publish(nickname + metric_name, metric_value)
+                    self.publish(nickname + metric_name, metric_value, precision=precision)
 
     def collect(self):
 
