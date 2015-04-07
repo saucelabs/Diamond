@@ -44,6 +44,7 @@ except ImportError:
 class MySQLCollector(diamond.collector.Collector):
 
     _GAUGE_KEYS = [
+        'Innodb_buffer_pool_bytes_data', 'Innodb_buffer_pool_bytes_dirty',
         'Innodb_buffer_pool_pages_data', 'Innodb_buffer_pool_pages_dirty',
         'Innodb_buffer_pool_pages_free',
         'Innodb_buffer_pool_pages_misc', 'Innodb_buffer_pool_pages_total',
@@ -410,7 +411,12 @@ class MySQLCollector(diamond.collector.Collector):
     def _publish_stats(self, nickname, metrics, precision=None):
 
         if precision is None:
-          precision = self.config['precision'] or 4
+            if 'precision' in self.config:
+                if self.config['precision'] is not None:
+                    precision = int(self.config['precision'])
+        if precision is None:
+            precision = 4
+        self.log.error("Using precision %s" % precision)
 
         for key in metrics:
             for metric_name in metrics[key]:
@@ -425,9 +431,11 @@ class MySQLCollector(diamond.collector.Collector):
                 if key == 'status':
                     if ('publish' not in self.config
                             or metric_name in self.config['publish']):
-                        self.publish(nickname + metric_name, metric_value, precision=precision)
+                        self.publish(nickname + metric_name, metric_value, 
+                                     precision=precision)
                 else:
-                    self.publish(nickname + metric_name, metric_value, precision=precision)
+                    self.publish(nickname + metric_name, metric_value, 
+                                 precision=precision)
 
     def collect(self):
 
